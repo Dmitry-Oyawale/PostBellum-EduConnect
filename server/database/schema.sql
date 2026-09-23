@@ -111,6 +111,7 @@ CREATE TABLE programs (
 
 )
 
+-- basically teacher participations, not post bellum employee participations
 CREATE TABLE participations (
     id SERIAL PRIMARY KEY,
 
