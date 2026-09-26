@@ -100,3 +100,57 @@ export async function register(req, res) {
         });
     }
 }
+
+export async function login(req, res) {
+    try {
+        const {
+            email, 
+            password,
+        } = req.body;
+    
+
+        const result = await pool.query(
+            `
+            SELECT *
+            FROM users
+            WHERE email = $1
+            `,
+            [email]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({
+                message: "Invalid email of password",
+            });
+            
+        }
+
+        const user = result.rows[0];
+
+        const correctPassword = await bcrypt.compare(
+            password,
+            user.password_hash
+        )
+
+        if (!correctPassword) {
+            return res.status(401).json({
+                message: "Invalid email or password",
+            });
+        }
+
+        const token = createToken(user);
+
+        delete user.password_hash
+
+        res.json({
+            token,
+            user,
+        })
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Server error",
+        })
+    }
+}
